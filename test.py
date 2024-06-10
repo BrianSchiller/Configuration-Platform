@@ -9,12 +9,13 @@ class Tester():
     ) -> None:
         self.smac = smac
 
-    def test(self, top_configs, test_configs, output, iterations = None):
+    def test(self, top_configs, test_configs, default_config, output, iterations = None):
         if iterations is None:
-            iterations = Settings.test_iterations
+            self.iterations = Settings.test_iterations
 
-        top_values = self.get_values(top_configs, iterations)
-        test_values = self.get_values(test_configs, iterations)
+        top_values = self.get_values(top_configs)
+        test_values = self.get_values(test_configs)
+        default_values = self.get_values([default_config])
 
         plt.clf()
 
@@ -23,6 +24,9 @@ class Tester():
 
         for key, value in test_values.items():
             plt.plot(value, color='blue', label='Test Configs' if key == 0 else '')
+
+        for key, value in default_values.items():
+            plt.plot(value, color='green', label='Default Config' if key == 0 else '')
 
         plt.legend()
         plt.xlabel('Iteration')
@@ -33,12 +37,12 @@ class Tester():
 
         return 
     
-    def get_values(self, configs, iterations):
+    def get_values(self, configs):
         values = {}
         # validate each config -iterations- times and add mean to the values
         for index, config in enumerate(configs):
             values[index] = []
-            for _ in range(iterations):
+            for _ in range(self.iterations):
                 performance = self.smac.validate(config)
                 values[index].append(performance)
         return values

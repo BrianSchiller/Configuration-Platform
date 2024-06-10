@@ -7,16 +7,18 @@ class Settings():
     #                 "cigar", "altcigar", "ellipsoid", "altellipsoid", "stepellipsoid",
     #                 "discus", "bentcigar", "deceptiveillcond", "deceptivemultimodal", "deceptivepath"
     #             ]
-    problems = [1,2,3]
+    problems = [1,2,3,4,5,6]
     dimensions = [5]
-    budget = 6
-    repetitions = 2
-    trials = 10
+    instances = [1,2,3]
+    #Why tf is causing budget > 10 errors?
+    budget = 50
+    repetitions = 1
+    trials = 100
 
     #Validation
-    val_size = 5
+    val_size = 1
     val_iterations = 1
 
     #Testing (test_size <= val_size)
-    test_size = 3
-    test_iterations = 2
+    test_size = 1
+    test_iterations = 1

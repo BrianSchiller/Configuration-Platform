@@ -1,10 +1,7 @@
 from ConfigSpace import Configuration, ConfigurationSpace, Float, Categorical, Integer, ForbiddenEqualsClause, ForbiddenAndConjunction
-from nevergrad.benchmark import Experiment
+from nevergrad.optimization.base import ConfiguredOptimizer
 from nevergrad.optimization.optimizerlib import base, ParametrizedOnePlusOne, ParametrizedMetaModel, ParametrizedCMA, NonObjectOptimizer, Chaining
-from nevergrad.functions import ArtificialFunction
 from training import Training
-
-import csv
 
 class Model:
     def __init__(
@@ -27,7 +24,7 @@ class Cobyla(Model):
     def train(self, config: Configuration, seed: int = 0) -> float:
         Cobyla = NonObjectOptimizer(method="COBYLA", random_restart=config["random_restart"])
 
-        return self.trainings_function.train(Cobyla)
+        return self.trainings_function.train(Cobyla, self.name)
     
     name = 'Cobyla'
     
@@ -53,11 +50,13 @@ class MetaModelFmin2(Model):
         # Could also make algorithm of ParamMetaModel configurable
         MetaModelFmin2 = ParametrizedMetaModel(multivariate_optimizer=CmaFmin2, algorithm=config["algorithm"], frequency_ratio=config["frequency_ratio"])
 
-        return self.trainings_function.train(MetaModelFmin2) 
+        return self.trainings_function.train(MetaModelFmin2, self.name) 
     
     name = "MetaModelFmin2"
     
 class MetaModelOnePlusOne(Model):
+    name = "MetaModelOnePlusOne"
+
     @property
     def configspace(self) -> ConfigurationSpace:
         cs = ConfigurationSpace(seed=0)
@@ -97,9 +96,8 @@ class MetaModelOnePlusOne(Model):
         # Could also make algorithm of ParamMetaModel configurable
         MetaModelOnePlusOne = ParametrizedMetaModel(multivariate_optimizer=OnePlusOne, algorithm=config["algorithm"], frequency_ratio=config["frequency_ratio"])
 
-        return self.trainings_function.train(MetaModelOnePlusOne) 
+        return self.trainings_function.train(MetaModelOnePlusOne, self.name) 
     
-    name = "MetaModelOnePlusOne"
 
 class MetaModel(Model):
     @property
@@ -108,12 +106,13 @@ class MetaModel(Model):
 
         # Meta Model
         frequency_ratio = Float("frequency_ratio", bounds=(0, 1), default=0.9)
-        algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
+        # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
+        algorithm = Categorical("algorithm", ["neural"], default="neural")
         
         # ParametrizedCMA
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale
         elitist = Categorical("elitist", [True, False], default=False)
-        popsize = Integer("popsize", bounds=(2, 1000), default=10)  # Assuming reasonable bounds for population size
+        popsize = Integer("popsize", bounds=(2, 1000), default=None)
         popsize_factor = Float("popsize_factor", bounds=(1.0, 10.0), default=3.0)
         diagonal = Categorical("diagonal", [True, False], default=False)
         high_speed = Categorical("high_speed", [True, False], default=False)
@@ -144,7 +143,7 @@ class MetaModel(Model):
 
         MetaModel = ParametrizedMetaModel(multivariate_optimizer=CMA, algorithm=config["algorithm"], frequency_ratio=config["frequency_ratio"])
 
-        return self.trainings_function.train(MetaModel) 
+        return self.trainings_function.train(MetaModel, self.name) 
     
     name = "MetaModel"
 
@@ -184,7 +183,7 @@ class CMA(Model):
             random_init=config["random_init"],
         )
 
-        return self.trainings_function.train(CMA) 
+        return self.trainings_function.train(CMA, self.name) 
     
     name = "CMA"
 
@@ -238,6 +237,6 @@ class ChainMetaModelPowell(Model):
         # TODO: Configure chaining budget?
         ChainMetaModelPowell = Chaining([MetaModel, Powell], ["half"])
 
-        return self.trainings_function.train(ChainMetaModelPowell)
-    
+        return self.trainings_function.train(ChainMetaModelPowell, self.name)
+
     name = "ChainMetaModelPowell"
