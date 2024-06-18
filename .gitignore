@@ -1,3 +1,5 @@
 Output
 Log
 *.pyc
+error.txt
+normal.txt

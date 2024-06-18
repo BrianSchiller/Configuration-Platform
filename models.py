@@ -35,7 +35,9 @@ class MetaModelFmin2(Model):
 
         # Meta Model
         frequency_ratio = Float("frequency_ratio", bounds=(0, 1), default=0.9)
-        algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
+        algorithm = Categorical("algorithm", ["quad", "svr", "rf"], default="quad")
+        # Option neural leads to non-convergence errors
+        # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
 
         # CmaFmin2
         random_restart = Categorical("random_restart", [True, False], default=False)
@@ -63,7 +65,9 @@ class MetaModelOnePlusOne(Model):
 
         # Meta Model
         frequency_ratio = Float("frequency_ratio", bounds=(0, 1), default=0.9)
-        algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
+        algorithm = Categorical("algorithm", ["quad", "svr", "rf"], default="quad")
+        # Option neural leads to non-convergence errors
+        # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
 
         # ParametrizedOnePlusOne
         noise_handling = Categorical("noise_handling", ["random", "optimistic"], default="random")
@@ -106,8 +110,9 @@ class MetaModel(Model):
 
         # Meta Model
         frequency_ratio = Float("frequency_ratio", bounds=(0, 1), default=0.9)
+        algorithm = Categorical("algorithm", ["quad", "svr", "rf"], default="quad")
+        # Option neural leads to non-convergence errors
         # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
-        algorithm = Categorical("algorithm", ["neural"], default="neural")
         
         # ParametrizedCMA
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale
@@ -197,7 +202,8 @@ class ChainMetaModelPowell(Model):
 
         # Meta Model
         frequency_ratio = Float("frequency_ratio", bounds=(0, 1), default=0.9)
-        algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
+        algorithm = Categorical("algorithm", ["quad", "svr", "rf"], default="quad")
+        # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
         
         # Additional Parameters
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale

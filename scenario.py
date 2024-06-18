@@ -89,12 +89,12 @@ if __name__ == "__main__":
     trainings_function = Training(unique_directory.name)
     metaModelOnePlusOne = MetaModelOnePlusOne(trainings_function)
     chainMetaModelPowell = ChainMetaModelPowell(trainings_function)
-    # cma = CMA(trainings_function)
+    cma = CMA(trainings_function)
     # cobyla = Cobyla(trainings_function)
     metaModel = MetaModel(trainings_function)
     metaModelFmin2 = MetaModelFmin2(trainings_function)
 
-    models = [metaModel, metaModelFmin2]
+    models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
 
     # For each model create the scenario, run, validate, test and plot
     for model in models:
