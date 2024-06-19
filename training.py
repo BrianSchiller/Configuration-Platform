@@ -2,8 +2,9 @@ from nevergrad.benchmark import Experiment as NevergradExperiment
 from nevergrad.optimization.optimizerlib import base
 from nevergrad.functions import ArtificialFunction
 import nevergrad as ng
-from ioh import get_problem, ProblemClass, Experiment, logger
+import numpy as np
 from pathlib import Path
+from ioh import get_problem, ProblemClass, Experiment, logger
 
 import json
 import math   
@@ -54,18 +55,25 @@ class Training:
 
     def train(self, optimizer: base.ConfiguredOptimizer, name: str) -> float:
         total_loss = 0
+        lower_bound = -5
+        upper_bound = 5
         for problem in self.problems:
             for dimension in self.dimensions:
                 dir_name = f"Log/{self.output_dir}/{name}_D{dimension}_F{problem}"
                 ioh_logger = logger.Analyzer(folder_name=dir_name,
                                             algorithm_name=optimizer.name)
+                # ioh_logger.add_run_attributes(optimizer, ['algorithm_seed'])
                 
                 for instance in self.instances:
                     function = get_problem(problem, instance=instance,
                                         dimension=dimension,
                                         problem_class=ProblemClass.BBOB)
                     function.attach_logger(ioh_logger)
-                    param = ng.p.Array(shape=(function.meta_data.n_variables,)).set_bounds(-5, 5)
+
+                    seed = np.random.randint(1, 1000000)
+                    np.random.seed(seed)
+                    param = ng.p.Array(init=np.random.uniform(lower_bound, upper_bound, (function.meta_data.n_variables,)))
+                    param.set_bounds(lower_bound, upper_bound)
                     algorithm = optimizer(parametrization=param, budget=self.budget)
                     
                     algorithm.minimize(function)

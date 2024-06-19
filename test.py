@@ -23,7 +23,7 @@ class Tester():
             plt.plot(value, color='red', label='Trained Configs' if key == 0 else '')
 
         for key, value in test_values.items():
-            plt.plot(value, color='blue', label='Test Configs' if key == 0 else '')
+            plt.plot(value, color='blue', label='Sample Configs' if key == 0 else '')
 
         for key, value in default_values.items():
             plt.plot(value, color='green', label='Default Config' if key == 0 else '')
