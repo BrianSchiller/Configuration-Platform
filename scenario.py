@@ -98,8 +98,12 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
 
     test_configs = model.configspace.sample_configuration(size = Settings.test_size)
     default_config = model.configspace.get_default_configuration()
-    Tester(smac).test(best_configs[:Settings.test_size], test_configs, default_config, model_output)
+    best_config = Tester(smac).test(best_configs[:Settings.test_size], test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
+    
+    # Output best_config
+    with open(model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt", 'w') as file:
+        print(best_config, file=file)
 
 
 if __name__ == "__main__":

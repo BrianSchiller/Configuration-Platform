@@ -1,5 +1,6 @@
 from smac import AlgorithmConfigurationFacade as ACFacade
 import matplotlib.pyplot as plt
+import statistics
 
 from settings import Settings
 
@@ -35,7 +36,17 @@ class Tester():
         output_file = output / f"test.png"
         plt.savefig(output_file)
 
-        return 
+        min_mean = float('inf')
+        key_with_min_mean = None
+
+        # Return the config with the lowest overall performance
+        for key, value_list in top_values.items():
+            current_mean = statistics.mean(value_list)
+            if current_mean < min_mean:
+                min_mean = current_mean
+                key_with_min_mean = key
+
+        return top_configs[key_with_min_mean]
     
     def get_values(self, configs):
         values = {}

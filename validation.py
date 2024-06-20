@@ -29,6 +29,5 @@ class Validator():
         # Sort configurations based on the performance values (ascending order)
         sorted_indices = sorted(values, key=values.get)
         sorted_configs = [configs[index] for index in sorted_indices]
-        #sorted_values = [values[index] for index in sorted_indices]
 
         return sorted_configs
