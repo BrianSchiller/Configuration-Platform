@@ -47,6 +47,26 @@ def write_scenario_file(output_dir):
     with open(f"{output_dir}/scenario.json", "w") as json_file:
         json.dump(data, json_file, indent=4)
 
+def create_job_script(model, budget, dimensions, specific_directory, slurm_output):
+    script_content = f"""#!/bin/bash
+#SBATCH --job-name={model}_B{budget}_D{'_'.join(map(str, dimensions))}
+#SBATCH --output={slurm_output}/%j.out
+#SBATCH --error={slurm_output}/%j.err
+#SBATCH --time=02:20:00
+#SBATCH --partition=KathleenE
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem-per-cpu=3000M
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Run the experiment
+python scenario.py --model {model} --directory {specific_directory} --dimension {' '.join(map(str, dimensions))} --budget {budget}
+"""
+    return script_content
+
+
 if __name__ == "__main__":
     # Arguments
     parser = argparse.ArgumentParser(description='Run optimization training.')
@@ -65,29 +85,28 @@ if __name__ == "__main__":
             specific_directory = unique_directory / f"B_{budget}__D_{'_'.join(map(str, dimensions))}"
 
             # Models 
-            metaModelOnePlusOne = "metaModelOnePlusOne"
-            chainMetaModelPowell = "chainMetaModelPowell"
-            cma = "cma"
-            cobyla = "cobyla"
-            metaModel = "metaModel"
-            metaModelFmin2 = "metaModelFmin2"
+            metaModelOnePlusOne = "MetaModelOnePlusOne"
+            chainMetaModelPowell = "ChainMetaModelPowell"
+            cma = "CMA"
+            cobyla = "Cobyla"
+            metaModel = "MetaModel"
+            metaModelFmin2 = "MetaModelFmin2"
 
             models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
 
             # For each model create the scenario, run, validate, test and plot
             for model in models:
                 if args.slurm:
-                    import runrunner as rrr
+                    slurm_output = specific_directory / model
+                    os.makedirs(slurm_output, exist_ok=True)
 
-                    slurm_output = specific_directory / model.name / "Slurm"
-                    srun_options = ["-N1", "-n1", "--mem-per-cpu=3000"]
-
-                    rrr.add_to_slurm_queue(
-                        cmd = f"./scenario.py --model {model} --directory {specific_directory}",
-                        name = model.name,
-                        base_dir = slurm_output,
-                        srun_options = srun_options
-                    )
+                    job_script = create_job_script(model, budget, dimensions, specific_directory, slurm_output)
+                    job_script_path = slurm_output / f"{model}_B{budget}_D{'_'.join(map(str, dimensions))}.sh"
+                    with open(job_script_path, 'w') as file:
+                        file.write(job_script)
+                    
+                    # Submit the job script
+                    os.system(f"sbatch {job_script_path}")
 
                 else:
                     run_experiment(model, budget, dimensions, specific_directory)

@@ -1,5 +1,6 @@
 Output
 Log
+venv
 *.pyc
 error.txt
 normal.txt

@@ -1,3 +1,5 @@
+#!/home/schiller/bachelor/Configurations/venv/bin/python
+
 import smac
 from smac import AlgorithmConfigurationFacade as ACFacade
 from smac import Scenario
@@ -36,19 +38,19 @@ class CustomCallback(Callback):
     
 def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_directory: Path):
     
-    trainings_function = Training(Path(*unique_directory.parts[2:]), dimensions=dimensions, budget=budget)
+    trainings_function = Training(Path(*unique_directory.parts[1:]), dimensions=dimensions, budget=budget)
     
-    if model_name == "metaModelOnePlusOne":
+    if model_name == "MetaModelOnePlusOne":
         model = MetaModelOnePlusOne(trainings_function)
-    if model_name == "chainMetaModelPowell":
+    if model_name == "ChainMetaModelPowell":
         model = ChainMetaModelPowell(trainings_function)
-    if model_name == "cma":
+    if model_name == "CMA":
         model = CMA(trainings_function)
-    if model_name == "metaModel":
+    if model_name == "MetaModel":
         model = MetaModel(trainings_function)
-    if model_name == "metaModelFmin2":
+    if model_name == "MetaModelFmin2":
         model = MetaModelFmin2(trainings_function)
-    if model_name == "cobyla":
+    if model_name == "Cobyla":
         model = Cobyla(trainings_function)
 
     model_output = unique_directory / model.name
@@ -94,7 +96,7 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     best_configs = Validator(smac).validate()
     print(f"Finished Validation")
 
-    test_configs = model.configspace.sample_configuration(Settings.test_size)
+    test_configs = model.configspace.sample_configuration(size = Settings.test_size)
     default_config = model.configspace.get_default_configuration()
     Tester(smac).test(best_configs[:Settings.test_size], test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
@@ -104,15 +106,17 @@ if __name__ == "__main__":
     # Arguments
     parser = argparse.ArgumentParser(description='Run optimization training.')
     parser.add_argument('--model-name', type=str, help='Optimization model to be used', required=False)
-    parser.add_argument('--dimensions', type=list[int], help='Dimensions in which to optimise', required=False)
+    parser.add_argument('--dimension', type=int, nargs='+', required=True, help='List of dimensions')
     parser.add_argument('--budget', type=int, help='Budget for the optimiser', required=False)
     parser.add_argument('--directory', type=Path, help='Path to the result directory', required=False)
     args = parser.parse_args()
 
     model = args.model_name
-    dimensions = args.dimensions
+    dimensions = args.dimension
     budget = args.budget
     unique_directory = args.directory
 
-    run_experiment(model, dimensions, budget, unique_directory)
+    print(dimensions)
+
+    run_experiment(model, budget, dimensions, unique_directory)
 

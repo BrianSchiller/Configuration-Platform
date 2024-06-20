@@ -1,10 +1,8 @@
-from nevergrad.benchmark import Experiment as NevergradExperiment
 from nevergrad.optimization.optimizerlib import base
-from nevergrad.functions import ArtificialFunction
 import nevergrad as ng
 import numpy as np
 from pathlib import Path
-from ioh import get_problem, ProblemClass, Experiment, logger
+from ioh import get_problem, ProblemClass, logger
 
 import json
 import math   
@@ -59,7 +57,7 @@ class Training:
         upper_bound = 5
         for problem in self.problems:
             for dimension in self.dimensions:
-                dir_name = f"Log/{self.output_dir}/{name}_D{dimension}_F{problem}"
+                dir_name = f"Log/{self.output_dir}/{name}/D{dimension}_F{problem}"
                 ioh_logger = logger.Analyzer(folder_name=dir_name,
                                             algorithm_name=optimizer.name)
                 # ioh_logger.add_run_attributes(optimizer, ['algorithm_seed'])
@@ -86,5 +84,9 @@ class Training:
                     for run in metadata['scenarios'][0]['runs']:
                         loss += run['best']['y']
                     loss = loss / len(metadata['scenarios'][0]['runs'])
-                    total_loss += math.log10(loss)
+                    #In case the target function returns inf or nothing at all
+                    if loss == 0:
+                        total_loss += 20
+                    else:
+                        total_loss += math.log10(loss)
         return total_loss
