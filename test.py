@@ -68,10 +68,7 @@ class Tester():
 
         # Iterate over each (dimension, budget, problem, instance) group
         for i, (dim, bud, prob, inst) in enumerate(grouped.groups.keys()):
-            print(prob)
-            print(data['problem'].unique().tolist())
-            row_index = data['problem'].unique().tolist().index(prob)
-            print(row_index)
+            row_index = int(prob) - 1
             
             # Group by source and config within the current (dimension, budget, problem, instance) group
             temp_data = grouped.get_group((dim, bud, prob, inst))
@@ -79,8 +76,7 @@ class Tester():
             Q3 = temp_data['loss'].quantile(0.75)
             IQR = Q3 - Q1
             threshold = Q3 + 1.5 * IQR  # You can adjust the multiplier if needed
-            print(f"Prob: {prob}, Inst: {inst} = {threshold} ")
-            temp_data['loss'] = temp_data['loss'].clip(upper=threshold)
+            temp_data.loc[:, 'loss'] = temp_data['loss'].clip(upper=threshold)
             group_data = temp_data.groupby(['source', 'config'])
             counts = group_data.size()
 
@@ -96,6 +92,9 @@ class Tester():
                     axs[row_index * num_cols + (inst - 1)].plot(range(counts.loc[(source, config)]), values['loss'], color='blue', label='Sample Configs')
                 else:
                     axs[row_index * num_cols + (inst - 1)].plot(range(counts.loc[(source, config)]), values['loss'], color='blue')
+
+            axs[row_index * num_cols + (inst - 1)].axhline(y=threshold, color='gray', linestyle='--', linewidth=1)
+            axs[row_index * num_cols + (inst - 1)].text(0, threshold, f'Threshold: {threshold:.2f}', color='gray', verticalalignment='bottom')
             
             # Set labels and title for each subplot
             axs[row_index * num_cols + (inst - 1)].set_xlabel('Index')
