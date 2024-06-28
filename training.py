@@ -68,6 +68,7 @@ class Training:
                                         problem_class=ProblemClass.BBOB)
                     function.attach_logger(ioh_logger)
 
+                    # Move seed upwards and log
                     seed = np.random.randint(1, 1000000)
                     np.random.seed(seed)
                     param = ng.p.Array(init=np.random.uniform(lower_bound, upper_bound, (function.meta_data.n_variables,)))
@@ -85,6 +86,7 @@ class Training:
                         loss += run['best']['y']
                     loss = loss / len(metadata['scenarios'][0]['runs'])
                     #In case the target function returns inf or nothing at all
+                    # What if loss is actually 0?
                     if loss == 0:
                         total_loss += 20
                     else:

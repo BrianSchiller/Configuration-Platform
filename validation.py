@@ -23,6 +23,8 @@ class Validator():
         for index, config in enumerate(configs):
             total_value = 0
             for _ in range(iterations):
+                # TODO Check whether validate returns different values
+                # TODO Collect values for representation
                 total_value += self.smac.validate(config)
             values[index] = total_value / iterations
 

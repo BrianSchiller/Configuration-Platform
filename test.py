@@ -21,6 +21,9 @@ class Tester():
         plt.clf()
 
         for key, value in top_values.items():
+            print()
+            print(key)
+            print(value)
             plt.plot(value, color='red', label='Trained Configs' if key == 0 else '')
 
         for key, value in test_values.items():
