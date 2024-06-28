@@ -18,7 +18,7 @@ from pathlib import Path
 
 from validation import Validator
 from test import Tester
-from settings import Settings
+import settings
 from training import Training
 from models import MetaModelOnePlusOne, ChainMetaModelPowell, CMA, Cobyla, MetaModel, MetaModelFmin2
 
@@ -55,7 +55,7 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
 
     model_output = unique_directory / model.name
 
-    scenario = Scenario(model.configspace, deterministic=True, n_trials=Settings.trials, output_directory=model_output)
+    scenario = Scenario(model.configspace, deterministic=True, n_trials=settings.trials, output_directory=model_output)
 
     print(f"Beginning Configuration of {model.name}")
     print()
@@ -93,12 +93,13 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     output_file = unique_directory / f"{model.name}.png"
     plt.savefig(output_file)
 
-    best_configs = Validator(smac).validate()
-    print(f"Finished Validation")
+    # best_configs = Validator(smac).validate()
+    # print(f"Finished Validation")
 
-    test_configs = model.configspace.sample_configuration(size = Settings.test_size)
+    best_configs = run_history.get_configs("cost")[:3]
+    test_configs = model.configspace.sample_configuration(size = settings.test_size)
     default_config = model.configspace.get_default_configuration()
-    best_config = Tester(smac).test(best_configs[:Settings.test_size], test_configs, default_config, model_output)
+    best_config = Tester(smac).test(best_configs[:settings.test_size], test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
     
     # Output best_config

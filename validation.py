@@ -1,5 +1,5 @@
 from smac import AlgorithmConfigurationFacade as ACFacade
-from settings import Settings
+import settings
 
 class Validator():
     def __init__(
@@ -9,9 +9,9 @@ class Validator():
 
     def validate(self, top_n: int = None, iterations: int = None):
         if top_n is None:
-            top_n = Settings.val_size
+            top_n = settings.val_size
         if iterations is None:
-            iterations = Settings.val_iterations
+            iterations = settings.val_iterations
 
         run_history = self.smac.runhistory
 

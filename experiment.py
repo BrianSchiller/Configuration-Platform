@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from settings import Settings
+import settings
 from scenario import run_experiment
 
     
@@ -26,21 +26,21 @@ def create_dirs() -> Path:
     
 def write_scenario_file(output_dir):
     data = {
-        "Trials": Settings.trials,
+        "Trials": settings.trials,
         "Optimisation": {
-            "Problems": Settings.problems,
-            "Dimensions": Settings.dimension_sets,
-            "Instances": Settings.instances,
-            "Budget": Settings.budgets,
-            "Repetitions": Settings.repetitions,
+            "Problems": settings.problems,
+            "Dimensions": settings.dimension_sets,
+            "Instances": settings.instances,
+            "Budget": settings.budgets,
+            "Repetitions": settings.repetitions,
         },
         "Validation": {
-            "Candidates": Settings.val_size,
-            "Iterations": Settings.val_iterations,
+            "Candidates": settings.val_size,
+            "Iterations": settings.val_iterations,
         },
         "Testing": {
-            "Candidates": Settings.test_size,
-            "Iterations": Settings.test_iterations,
+            "Candidates": settings.test_size,
+            "Iterations": settings.test_iterations,
         }
     }
 
@@ -80,8 +80,8 @@ if __name__ == "__main__":
 
     # Iterate over sets of relevant dimensions
     # e.g.: sets = [[2], [3], [5], [2,3,5]]
-    for dimensions in Settings.dimension_sets:
-        for budget in Settings.budgets:
+    for dimensions in settings.dimension_sets:
+        for budget in settings.budgets:
             specific_directory = unique_directory / f"B_{budget}__D_{'_'.join(map(str, dimensions))}"
 
             # Models 
