@@ -14,6 +14,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 import matplotlib.pyplot as plt
 import argparse
+import datetime
 from pathlib import Path
 
 from validation import Validator
@@ -32,7 +33,8 @@ class CustomCallback(Callback):
     def on_tell_end(self, smbo: SMBO, info: TrialInfo, value: TrialValue) -> bool | None:
         self.trials_counter += 1
         if self.trials_counter % 20 == 0:
-            print(f"Evaluated {self.trials_counter} trials so far.")
+            timestamp = datetime.datetime.now().strftime("%H-%M-%S")
+            print(f"{timestamp}: Evaluated {self.trials_counter} trials so far.")
 
         return None
     
@@ -101,6 +103,7 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     default_config = model.configspace.get_default_configuration()
     best_config = Tester(smac).test(best_configs[:settings.test_size], test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
+    print()
     
     # Output best_config
     with open(model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt", 'w') as file:

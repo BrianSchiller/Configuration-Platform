@@ -68,47 +68,67 @@ class Tester():
 
         # Iterate over each (dimension, budget, problem, instance) group
         for i, (dim, bud, prob, inst) in enumerate(grouped.groups.keys()):
+            print(prob)
+            print(data['problem'].unique().tolist())
             row_index = data['problem'].unique().tolist().index(prob)
+            print(row_index)
             
             # Group by source and config within the current (dimension, budget, problem, instance) group
-            group_data = grouped.get_group((dim, bud, prob, inst))
-            group_data_grouped = group_data.groupby(['source', 'config'])
-            counts = group_data_grouped.size()
+            temp_data = grouped.get_group((dim, bud, prob, inst))
+            Q1 = temp_data['loss'].quantile(0.25)
+            Q3 = temp_data['loss'].quantile(0.75)
+            IQR = Q3 - Q1
+            threshold = Q3 + 1.5 * IQR  # You can adjust the multiplier if needed
+            print(f"Prob: {prob}, Inst: {inst} = {threshold} ")
+            temp_data['loss'] = temp_data['loss'].clip(upper=threshold)
+            group_data = temp_data.groupby(['source', 'config'])
+            counts = group_data.size()
 
             # Plot each source x config combination
-            for (source, config), source_group_data in group_data_grouped:
+            for (source, config), values in group_data:
                 if source == "top":
                     # Use different shades of red for each "top" config
                     color = (1 - int(config) / counts.loc[(source, config)], 0, 0)
-                    axs[row_index * num_cols + inst].plot(range(counts.loc[(source, config)]), source_group_data['loss'], color=color, label=f"Best, Config: {config}")
+                    axs[row_index * num_cols + (inst - 1)].plot(range(counts.loc[(source, config)]), values['loss'], color=color, label=f"Best, Config: {config}")
                 elif source == "default":
-                    axs[row_index * num_cols + inst].plot(range(counts.loc[(source, config)]), source_group_data['loss'], color='green', label='Default Config')
+                    axs[row_index * num_cols + (inst - 1)].plot(range(counts.loc[(source, config)]), values['loss'], color='green', label='Default Config')
                 elif source == "sample" and config == "0":
-                    axs[row_index * num_cols + inst].plot(range(counts.loc[(source, config)]), source_group_data['loss'], color='blue', label='Sample Configs')
+                    axs[row_index * num_cols + (inst - 1)].plot(range(counts.loc[(source, config)]), values['loss'], color='blue', label='Sample Configs')
                 else:
-                    axs[row_index * num_cols + inst].plot(range(counts.loc[(source, config)]), source_group_data['loss'], color='blue')
+                    axs[row_index * num_cols + (inst - 1)].plot(range(counts.loc[(source, config)]), values['loss'], color='blue')
             
             # Set labels and title for each subplot
-            axs[row_index * num_cols + inst].set_xlabel('Index')
-            axs[row_index * num_cols + inst].set_ylabel('Loss')
-            axs[row_index * num_cols + inst].set_title(f'Problem: {prob}, Instance: {inst}')
-            axs[row_index * num_cols + inst].legend()
+            axs[row_index * num_cols + (inst - 1)].set_xlabel('Index')
+            axs[row_index * num_cols + (inst - 1)].set_ylabel('Loss')
+            axs[row_index * num_cols + (inst - 1)].set_title(f'Problem: {prob}, Instance: {inst}')
+            axs[row_index * num_cols + (inst - 1)].legend()
         
         # Adjust layout and spacing
         plt.tight_layout()
-        plt.savefig(outdir / 'problems.pdf')  # Adjust the file extension and path as needed
+        plt.savefig(outdir / 'problems.pdf')
 
         
     def get_problem_results(self, directory):
         data = []
+        file_paths = []
+        # Walk through each directory and subdirectory to collect file paths
         for root, _, files in os.walk(directory):
-                for file in files:
-                    if file.endswith(".csv"):
-                        filepath = os.path.join(root, file)
-                        df = pd.read_csv(filepath)
-                        df['source'] = os.path.basename(root).split('_')[0]
-                        df['config'] = file.split('_')[0]
-                        data.append(df)
+            for file in files:
+                if file.endswith(".csv"):
+                    file_paths.append((root, file))
+        # Sort the file paths based on the filenames
+        file_paths.sort(key=lambda x: x[1])
+        for root, file in file_paths:
+            filepath = os.path.join(root, file)
+            # Read the CSV file into a DataFrame
+            df = pd.read_csv(filepath)
+            # Extract 'source' and 'config' from directory and file names
+            source = os.path.basename(root).split('_')[0]
+            config = file.split('_')[0]
+            df['source'] = source
+            df['config'] = config
+            # Append the DataFrame to the list
+            data.append(df)
         return pd.concat(data, ignore_index=True)
     
     

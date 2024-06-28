@@ -88,7 +88,7 @@ class Training:
                     for index,run in enumerate(metadata['scenarios'][0]['runs']):
                         loss += run['best']['y']
                         if settings.store_problem_results:
-                            results.append([problem, index, dimension, self.budget, run['best']['y']])
+                            results.append([problem, (index + 1), dimension, self.budget, run['best']['y']])
                     loss = loss / len(metadata['scenarios'][0]['runs'])
                     #In case the target function returns inf or nothing at all
                     # What if loss is actually 0?

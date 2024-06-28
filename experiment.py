@@ -92,8 +92,7 @@ if __name__ == "__main__":
             metaModel = "MetaModel"
             metaModelFmin2 = "MetaModelFmin2"
 
-            # models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
-            models = [cma]
+            models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
 
             # For each model create the scenario, run, validate, test and plot
             for model in models:
