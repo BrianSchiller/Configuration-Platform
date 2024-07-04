@@ -20,3 +20,6 @@ val_iterations = 3
 #Testing (test_size <= val_size)
 test_size = 3
 test_iterations = 10
+
+#Logging
+log_folder = "/storage/work/schiller/logs/configs"

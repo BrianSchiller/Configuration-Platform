@@ -36,8 +36,6 @@ class MetaModelFmin2(Model):
         # Meta Model
         frequency_ratio = Float("frequency_ratio", bounds=(0, 1), default=0.9)
         algorithm = Categorical("algorithm", ["quad", "svr", "rf"], default="quad")
-        # Option neural leads to non-convergence errors
-        # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
 
         # CmaFmin2
         random_restart = Categorical("random_restart", [True, False], default=False)
@@ -70,8 +68,8 @@ class MetaModelOnePlusOne(Model):
         # algorithm = Categorical("algorithm", ["quad", "neural", "svr", "rf"], default="quad")
 
         # ParametrizedOnePlusOne
-        noise_handling = Categorical("noise_handling", ["random", "optimistic"], default="random")
-        noise_frequency = Float("noise_frequency", bounds=(0, 1), default=0.05)
+        noise_handling = Categorical("noise_handling", ["random", "optimistic"], default=None)
+        noise_frequency = Float("noise_frequency", bounds=(0, 1), default=None)
     
         mutation = Categorical("mutation", 
                                 ["gaussian", "cauchy", "discrete", "discreteBSO", "fastga", "doublefastga", "rls", 
@@ -159,7 +157,7 @@ class CMA(Model):
 
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale
         elitist = Categorical("elitist", [True, False], default=False)
-        popsize = Integer("popsize", bounds=(2, 1000), default=10)  # Assuming reasonable bounds for population size
+        popsize = Integer("popsize", bounds=(2, 1000), default=None)  # Assuming reasonable bounds for population size
         popsize_factor = Float("popsize_factor", bounds=(1.0, 10.0), default=3.0)
         diagonal = Categorical("diagonal", [True, False], default=False)
         high_speed = Categorical("high_speed", [True, False], default=False)

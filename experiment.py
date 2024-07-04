@@ -52,14 +52,15 @@ def create_job_script(model, budget, dimensions, specific_directory, slurm_outpu
 #SBATCH --job-name={model}_B{budget}_D{'_'.join(map(str, dimensions))}
 #SBATCH --output={slurm_output}/{model}.out
 #SBATCH --error={slurm_output}/{model}.err
-#SBATCH --time=48:00:00
-#SBATCH --partition=KathleenE
+#SBATCH --time=96:00:00
+#SBATCH --partition=Kathleen
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=3000M
 
 # Activate virtual environment
-source venv/bin/activate
+module load Python/3.11
+source /storage/work/schiller/venvs/config/bin/activate
 
 # Run the experiment
 python scenario.py --model {model} --directory {specific_directory} --dimension {' '.join(map(str, dimensions))} --budget {budget}
@@ -91,9 +92,8 @@ if __name__ == "__main__":
             cobyla = "Cobyla"
             metaModel = "MetaModel"
             metaModelFmin2 = "MetaModelFmin2"
-
             models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
-
+             
             # For each model create the scenario, run, validate, test and plot
             for model in models:
                 if args.slurm:

@@ -22,6 +22,7 @@ from test import Tester
 import settings
 from training import Training
 from models import MetaModelOnePlusOne, ChainMetaModelPowell, CMA, Cobyla, MetaModel, MetaModelFmin2
+from plot import plot_config_difference
 
 class CustomCallback(Callback):
     def __init__(self) -> None:
@@ -98,16 +99,19 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     # best_configs = Validator(smac).validate()
     # print(f"Finished Validation")
 
-    best_configs = run_history.get_configs("cost")[:3]
+    best_configs = run_history.get_configs("cost")[:settings.test_size]
     test_configs = model.configspace.sample_configuration(size = settings.test_size)
     default_config = model.configspace.get_default_configuration()
-    best_config = Tester(smac).test(best_configs[:settings.test_size], test_configs, default_config, model_output)
+    Tester(smac).test(best_configs[:settings.test_size], test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
     print()
     
     # Output best_config
-    with open(model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt", 'w') as file:
-        print(best_config, file=file)
+    config_output = model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt"
+    with open(config_output, 'w') as file:
+        print(best_configs[0].get_dictionary(), file=file)
+
+    plot_config_difference(config_output, default_config, model.name, model_output / "plots")
 
 
 if __name__ == "__main__":
@@ -123,8 +127,6 @@ if __name__ == "__main__":
     dimensions = args.dimension
     budget = args.budget
     unique_directory = args.directory
-
-    print(dimensions)
 
     run_experiment(model, budget, dimensions, unique_directory)
 

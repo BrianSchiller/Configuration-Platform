@@ -23,21 +23,13 @@ class Training:
         instances: list[int] = None
     ) -> None:
         self.output_dir = output_dir
+        self.dimensions = dimensions
+        self.budget = budget
 
         if problems is not None:
             self.problems = problems
         else:
             self.problems = settings.problems
-        
-        if dimensions is not None:
-            self.dimensions = dimensions
-        else:
-            self.dimensions = settings.dimensions
-        
-        if budget is not None:
-            self.budget = budget
-        else:
-            self.budget = settings.budget
         
         if repetitions is not None:
             self.repetitions = repetitions
@@ -62,7 +54,7 @@ class Training:
             results = [["problem", "instance", "dimension", "budget", "loss"]]
         for problem in self.problems:
             for dimension in self.dimensions:
-                dir_name = f"Log/{self.output_dir}/{name}/D{dimension}_F{problem}"
+                dir_name = f"{settings.log_folder}/{self.output_dir}/{name}/D{dimension}_F{problem}"
                 ioh_logger = logger.Analyzer(folder_name=dir_name,
                                             algorithm_name=optimizer.name)
                 # ioh_logger.add_run_attributes(optimizer, ['seed'])

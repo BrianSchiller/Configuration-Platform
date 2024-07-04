@@ -17,27 +17,22 @@ class Tester():
             self.iterations = settings.test_iterations
         
         settings.store_problem_results = True
-        self.top_results = output / "top_results"
+        result_output = output / "test_results"
+        self.top_results = result_output / "top_results"
         top_values = self.get_values(top_configs, self.top_results)
-        self.sample_results = output / "sample_results"
+        print("Finished Testing of found configurations")
+        self.sample_results = result_output / "sample_results"
         test_values = self.get_values(test_configs, self.sample_results)
-        self.default_results = output / "default_results"
+        print("Finished Testing of sampled configurations")
+        self.default_results = result_output / "default_results"
         default_values = self.get_values([default_config], self.default_results)
+        print("Finished Testing of default configuration")
 
+        output = output / "plots"
         self.plot_performance_history(top_values, test_values, default_values, output)
         self.plot_problem_performance(output)
 
-        min_mean = float('inf')
-        key_with_min_mean = None
-
-        # Return the config with the lowest overall performance
-        for key, value_list in top_values.items():
-            current_mean = statistics.mean(value_list)
-            if current_mean < min_mean:
-                min_mean = current_mean
-                key_with_min_mean = key
-
-        return top_configs[key_with_min_mean]
+        return
     
     def get_values(self, configs, out_dir):
         values = {}
@@ -119,7 +114,6 @@ class Tester():
         file_paths.sort(key=lambda x: x[1])
         for root, file in file_paths:
             filepath = os.path.join(root, file)
-            # Read the CSV file into a DataFrame
             df = pd.read_csv(filepath)
             # Extract 'source' and 'config' from directory and file names
             source = os.path.basename(root).split('_')[0]
@@ -136,9 +130,9 @@ class Tester():
 
         for key, value in top_values.items():
             if key == 0:
-                plt.plot(value, color='salmon', label='1. Trained Configs')
+                plt.plot(value, color='salmon', label='1. Trained Config')
             if key == 1:
-                plt.plot(value, color='red', label='2. Trained Configs')
+                plt.plot(value, color='red', label='2. Trained Config')
             if key > 1:
                 plt.plot(value, color='darkred', label='Trained Configs' if key == 2 else "")
 
@@ -152,6 +146,7 @@ class Tester():
         plt.xlabel('Iteration')
         plt.ylabel('Fitness (Loss)')
         plt.title('Optimization Process')
-        output_file = output / f"test.png"
+        os.makedirs(output, exist_ok=True)
+        output_file = output / f"test.pdf"
         plt.savefig(output_file)
 
