@@ -18,12 +18,15 @@ class Tester():
         
         settings.store_problem_results = True
         result_output = output / "test_results"
+
         self.top_results = result_output / "top_results"
         top_values = self.get_values(top_configs, self.top_results)
         print("Finished Testing of found configurations")
+
         self.sample_results = result_output / "sample_results"
         test_values = self.get_values(test_configs, self.sample_results)
         print("Finished Testing of sampled configurations")
+
         self.default_results = result_output / "default_results"
         default_values = self.get_values([default_config], self.default_results)
         print("Finished Testing of default configuration")
@@ -36,7 +39,7 @@ class Tester():
     
     def get_values(self, configs, out_dir):
         values = {}
-        # validate each config -iterations- times and add mean to the values
+        # validate each config -iterations- times
         for index, config in enumerate(configs):
             values[index] = []
             for _index in range(self.iterations):

@@ -44,57 +44,61 @@ class Training:
         # TODO: Find a more elegant solution for normalising results
         self.values = {}
 
-    def train(self, optimizer: base.ConfiguredOptimizer, name: str) -> float:
+    def train(self, optimizer: base.ConfiguredOptimizer, _instance, name: str) -> float:
         total_loss = 0
         lower_bound = -5
         upper_bound = 5
-        seed = np.random.randint(1, 1000000)
-        np.random.seed(seed)
+
+        problem, instance = _instance.split("_")
+        problem = int(problem)
+        instance = int(instance)
+
         if settings.store_problem_results:
             results = [["problem", "instance", "dimension", "budget", "loss"]]
-        for problem in self.problems:
-            for dimension in self.dimensions:
-                dir_name = f"{settings.log_folder}/{self.output_dir}/{name}/D{dimension}_F{problem}"
-                ioh_logger = logger.Analyzer(folder_name=dir_name,
-                                            algorithm_name=optimizer.name)
-                # ioh_logger.add_run_attributes(optimizer, ['seed'])
-                ioh_logger.add_experiment_attribute("seed", str(seed))
-                
-                for instance in self.instances:
-                    function = get_problem(problem, instance=instance,
-                                        dimension=dimension,
-                                        problem_class=ProblemClass.BBOB)
-                    function.attach_logger(ioh_logger)
 
-                    param = ng.p.Array(init=np.random.uniform(lower_bound, upper_bound, (function.meta_data.n_variables,)))
-                    param.set_bounds(lower_bound, upper_bound)
-                    algorithm = optimizer(parametrization=param, budget=self.budget)
-                    
-                    algorithm.minimize(function)
-                    function.reset()
-                
-                ioh_logger.close()
-                with Path(ioh_logger.output_directory + f"/IOHprofiler_{const.PROB_NAMES[problem - 1]}.json").open() as metadata_file:
-                    metadata = json.load(metadata_file)
-                    loss = 0
-                    for index,run in enumerate(metadata['scenarios'][0]['runs']):
-                        loss += run['best']['y']
-                        if settings.store_problem_results:
-                            results.append([problem, (index + 1), dimension, self.budget, run['best']['y']])
-                    loss = loss / len(metadata['scenarios'][0]['runs'])
-                    #In case the target function returns inf or nothing at all
-                    # What if loss is actually 0?
-                    if loss == 0:
-                        total_loss += 20
-                    else:
-                        total_loss += math.log10(loss)
+        for dimension in self.dimensions:
+            dir_name = f"{settings.log_folder}/{self.output_dir}/{name}/D{dimension}_F{problem}"
+            ioh_logger = logger.Analyzer(folder_name=dir_name,
+                                        algorithm_name=optimizer.name)
+            function = get_problem(problem, instance=instance,
+                                dimension=dimension,
+                                problem_class=ProblemClass.BBOB)
+            function.attach_logger(ioh_logger)
+
+            param = ng.p.Array(init=np.random.uniform(lower_bound, upper_bound, (function.meta_data.n_variables,)))
+            param.set_bounds(lower_bound, upper_bound)
+            algorithm = optimizer(parametrization=param, budget=self.budget)
+            
+            algorithm.minimize(function)
+            function.reset()
+            
+            ioh_logger.close()
+            with Path(ioh_logger.output_directory + f"/IOHprofiler_{const.PROB_NAMES[problem - 1]}.json").open() as metadata_file:
+                metadata = json.load(metadata_file)
+                loss = 0
+                for index,run in enumerate(metadata['scenarios'][0]['runs']):
+                    loss += run['best']['y']
+                    if settings.store_problem_results:
+                        results.append([problem, instance, dimension, self.budget, run['best']['y']])
+                loss = loss / len(metadata['scenarios'][0]['runs'])
+                #In case the target function returns inf or nothing at all
+                # What if loss is actually 0?
+                if loss == 0:
+                    total_loss += 20
+                else:
+                    total_loss += math.log10(loss)
 
         if settings.store_problem_results:
             os.makedirs(os.path.dirname(settings.problem_result_dir), exist_ok=True)
             try:
-                with open(settings.problem_result_dir, 'w', newline='') as file:
+                file_exists = os.path.isfile(settings.problem_result_dir)
+                # If file already exists skip header
+                if file_exists:
+                    results = results[1:]
+                with open(settings.problem_result_dir, 'a', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerows(results)
+                    for result in results:
+                        writer.writerow(result)
             except Exception as e:
                 print(f"Error writing results to CSV: {e}")
         return total_loss

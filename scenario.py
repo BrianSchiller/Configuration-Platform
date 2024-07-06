@@ -16,28 +16,15 @@ import matplotlib.pyplot as plt
 import argparse
 import datetime
 from pathlib import Path
+import numpy as np
+import pandas as pd
 
 from validation import Validator
 from test import Tester
 import settings
 from training import Training
 from models import MetaModelOnePlusOne, ChainMetaModelPowell, CMA, Cobyla, MetaModel, MetaModelFmin2
-from plot import plot_config_difference
-
-class CustomCallback(Callback):
-    def __init__(self) -> None:
-        self.trials_counter = 0
-
-    def on_start(self, smbo: SMBO) -> None:
-        print("Let's start!")
-
-    def on_tell_end(self, smbo: SMBO, info: TrialInfo, value: TrialValue) -> bool | None:
-        self.trials_counter += 1
-        if self.trials_counter % 20 == 0:
-            timestamp = datetime.datetime.now().strftime("%H-%M-%S")
-            print(f"{timestamp}: Evaluated {self.trials_counter} trials so far.")
-
-        return None
+import plot
     
 def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_directory: Path):
     
@@ -58,7 +45,15 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
 
     model_output = unique_directory / model.name
 
-    scenario = Scenario(model.configspace, deterministic=True, n_trials=settings.trials, output_directory=model_output)
+    instances = [f"{problem}_{instance}" for problem in settings.problems for instance in settings.instances]
+    index_dict = {instance: [i] for i, instance in enumerate(instances)}
+
+    scenario = Scenario(model.configspace, 
+                        deterministic=True, 
+                        n_trials=settings.trials, 
+                        output_directory=model_output, 
+                        instances=instances,
+                        instance_features=index_dict)
 
     print(f"Beginning Configuration of {model.name}")
     print()
@@ -67,41 +62,21 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
         scenario,
         model.train, 
         overwrite=True, 
-        callbacks=[CustomCallback()],
     )
 
     incumbent = smac.optimize()
     print(f"Finished configuration of {model.name}")
 
-    #Plot results
-    run_history = smac.runhistory
-    fitness_values = [entry.cost for entry in run_history._data.values()]
+    # Plot the trajectory of the incumbents
+    plot.plot_trajectory(smac.intensifier, unique_directory, model.name)
     
-    min_loss = min(fitness_values)
-    min_loss_index = fitness_values.index(min_loss)
-
-    plt.clf()
-    plt.plot(fitness_values, label="Fitness values over iterations")
-
-    # Mark default & incumbent
-    plt.scatter(0, fitness_values[0], color='red', marker='o', s=100, label='Default configuration')
-    plt.scatter(min_loss_index, min_loss, color='blue', marker='*', s=200, label='Incumbent configuration')
-    
-    plt.xlabel('Iteration')
-    plt.ylabel('Fitness (Loss)')
-    plt.title('Optimization Process')
-    plt.legend()
-    plt.grid(True)
-
-    output_file = unique_directory / f"{model.name}.png"
-    plt.savefig(output_file)
-
-    # best_configs = Validator(smac).validate()
-    # print(f"Finished Validation")
-
-    best_configs = run_history.get_configs("cost")[:settings.test_size]
+    # Test the found configurations against the default one and randomly sampled ones
+    best_configs = smac.runhistory.get_configs("cost")[:settings.test_size]
     test_configs = model.configspace.sample_configuration(size = settings.test_size)
     default_config = model.configspace.get_default_configuration()
+    # Adjust the popsize
+    if model.name == "MetaModel" or model.name == "CMA" or model.name == "ChainMetaModelPowell":
+        default_config["popsize"] = 4 + int(3 * np.log(dimensions[-1]))
     Tester(smac).test(best_configs[:settings.test_size], test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
     print()
@@ -111,7 +86,7 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     with open(config_output, 'w') as file:
         print(best_configs[0].get_dictionary(), file=file)
 
-    plot_config_difference(config_output, default_config, model.name, model_output / "plots")
+    plot.plot_config_difference(config_output, default_config, model.name, model_output / "plots")
 
 
 if __name__ == "__main__":
