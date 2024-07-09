@@ -124,7 +124,7 @@ class MetaModel(Model):
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale
         elitist = Categorical("elitist", [True, False], default=False)
         # default depends on dimension {2: 6, 3: 7, 5: 8, 10: 10, 15: 11}
-        popsize = Integer("popsize", bounds=(2, 100), default=8)
+        popsize = Integer("popsize", bounds=(2, 50), default=8)
         popsize_factor = Float("popsize_factor", bounds=(1.0, 10.0), default=3.0)
         diagonal = Categorical("diagonal", [True, False], default=False)
         high_speed = Categorical("high_speed", [True, False], default=False)
@@ -167,7 +167,7 @@ class CMA(Model):
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale
         elitist = Categorical("elitist", [True, False], default=False)
         # default depends on dimension {2: 6, 3: 7, 5: 8, 10: 10, 15: 11}
-        popsize = Integer("popsize", bounds=(2, 100), default=8)  # Assuming reasonable bounds for population size
+        popsize = Integer("popsize", bounds=(2, 50), default=8)  # Assuming reasonable bounds for population size
         popsize_factor = Float("popsize_factor", bounds=(1.0, 10.0), default=3.0)
         diagonal = Categorical("diagonal", [True, False], default=False)
         high_speed = Categorical("high_speed", [True, False], default=False)
@@ -216,7 +216,7 @@ class ChainMetaModelPowell(Model):
         # Additional Parameters
         scale = Float("scale", bounds=(0.1, 10.0), default=1.0)  # Assuming reasonable bounds for scale
         elitist = Categorical("elitist", [True, False], default=False)
-        popsize = Integer("popsize", bounds=(2, 100), default=8) 
+        popsize = Integer("popsize", bounds=(2, 50), default=8) 
         popsize_factor = Float("popsize_factor", bounds=(1.0, 10.0), default=3.0)
         diagonal = Categorical("diagonal", [True, False], default=False)
         high_speed = Categorical("high_speed", [True, False], default=False)

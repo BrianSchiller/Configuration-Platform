@@ -68,23 +68,21 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     print(f"Finished configuration of {model.name}")
 
     # Plot the trajectory of the incumbents
-    plot.plot_trajectory(smac.intensifier, unique_directory, model.name)
+    plot.plot_trajectory(smac.intensifier, smac.runhistory, unique_directory, model.name)
     
-    # Test the found configurations against the default one and randomly sampled ones
-    best_configs = smac.runhistory.get_configs("cost")[:settings.test_size]
+    # Test the found configuration against the default one and randomly sampled ones
     test_configs = model.configspace.sample_configuration(size = settings.test_size)
     default_config = model.configspace.get_default_configuration()
     # Adjust the popsize
     if model.name == "MetaModel" or model.name == "CMA" or model.name == "ChainMetaModelPowell":
         default_config["popsize"] = 4 + int(3 * np.log(dimensions[-1]))
-    Tester(smac).test(best_configs[:settings.test_size], test_configs, default_config, model_output)
+    Tester(smac).test(incumbent, test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
-    print()
     
     # Output best_config
     config_output = model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt"
     with open(config_output, 'w') as file:
-        print(best_configs[0].get_dictionary(), file=file)
+        print(incumbent.get_dictionary(), file=file)
 
     plot.plot_config_difference(config_output, default_config, model.name, model_output / "plots")
 

@@ -22,3 +22,65 @@ PROB_NAMES = ["f1_Sphere",
             "f22_Gallagher21",
             "f23_Katsuura",
             "f24_LunacekBiRastrigin"]
+
+MODEL_CAT_ATT = {
+    "MetaModelOnePlusOne": ["algorithm", "mutation", "noise_handling"],
+    "MetaModelFmin2": ["algorithm"],
+    "MetaModel": ["algorithm"],
+    "CMA": [],
+    "ChainMetaModelPowell": ["algorithm"]
+}
+
+MODEL_DIM = {
+    "MetaModelOnePlusOne": {
+        "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
+        "algorithm": dict(label='algorithm'),
+        "noise_handling": dict(label='noise_handling'),
+        "noise_frequency": dict(range=[0, 1], label='noise_frequency'),
+        "mutation": dict(label='mutation'),
+        "crossover": dict(range=[0, 1], label='crossover', tickvals=[0, 1], ticktext=["False", "True"]),
+        "use_pareto": dict(range=[0, 1], label='use_pareto', tickvals=[0, 1], ticktext=["False", "True"]),
+        "sparse": dict(range=[0, 1], label='sparse', tickvals=[0, 1], ticktext=["False", "True"]),
+        "smoother": dict(range=[0, 1], label='smoother', tickvals=[0, 1], ticktext=["False", "True"]),
+    },
+    "MetaModelFmin2": {
+        "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
+        "algorithm": dict(label='algorithm'),
+        "random_restart": dict(range=[0, 1], label='random_restart', tickvals=[0, 1], ticktext=["False", "True"]),
+    },
+    "MetaModel": {
+        "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
+        "algorithm": dict(label='algorithm'),
+        "scale": dict(range=[0.1, 10], label='scale'),
+        "elitist": dict(range=[0, 1], label='elitist', tickvals=[0, 1], ticktext=["False", "True"]),
+        "popsize": dict(range=[2,50], label='popsize'),
+        "popsize_factor": dict(range=[1,10], label='popsize_factor'),
+        "diagonal": dict(range=[0, 1], label='diagonal', tickvals=[0, 1], ticktext=["False", "True"]),
+        "high_speed": dict(range=[0, 1], label='high_speed', tickvals=[0, 1], ticktext=["False", "True"]),
+        "fcmaes": dict(range=[0, 1], label='fcmaes', tickvals=[0, 1], ticktext=["False", "True"]),
+        "random_init": dict(range=[0, 1], label='random_init', tickvals=[0, 1], ticktext=["False", "True"]),
+    },
+    "CMA": {
+        "scale": dict(range=[0.1, 10], label='scale'),
+        "elitist": dict(range=[0, 1], label='elitist', tickvals=[0, 1], ticktext=["False", "True"]),
+        "popsize": dict(range=[2,50], label='popsize'),
+        "popsize_factor": dict(range=[1,10], label='popsize_factor'),
+        "diagonal": dict(range=[0, 1], label='diagonal', tickvals=[0, 1], ticktext=["False", "True"]),
+        "high_speed": dict(range=[0, 1], label='high_speed', tickvals=[0, 1], ticktext=["False", "True"]),
+        "fcmaes": dict(range=[0, 1], label='fcmaes', tickvals=[0, 1], ticktext=["False", "True"]),
+        "random_init": dict(range=[0, 1], label='random_init', tickvals=[0, 1], ticktext=["False", "True"]),
+    },
+    "ChainMetaModelPowell": {
+        "random_restart": dict(range=[0, 1], label='random_restart', tickvals=[0, 1], ticktext=["False", "True"]),
+        "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
+        "algorithm": dict(label='algorithm'),
+        "scale": dict(range=[0.1, 10], label='scale'),
+        "elitist": dict(range=[0, 1], label='elitist', tickvals=[0, 1], ticktext=["False", "True"]),
+        "popsize": dict(range=[2,50], label='popsize'),
+        "popsize_factor": dict(range=[1,10], label='popsize_factor'),
+        "diagonal": dict(range=[0, 1], label='diagonal', tickvals=[0, 1], ticktext=["False", "True"]),
+        "high_speed": dict(range=[0, 1], label='high_speed', tickvals=[0, 1], ticktext=["False", "True"]),
+        "fcmaes": dict(range=[0, 1], label='fcmaes', tickvals=[0, 1], ticktext=["False", "True"]),
+        "random_init": dict(range=[0, 1], label='random_init', tickvals=[0, 1], ticktext=["False", "True"]),
+    }
+}
