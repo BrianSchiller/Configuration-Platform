@@ -68,7 +68,7 @@ class Training:
             param = ng.p.Array(init=np.random.uniform(lower_bound, upper_bound, (function.meta_data.n_variables,)))
             param.set_bounds(lower_bound, upper_bound)
             algorithm = optimizer(parametrization=param, budget=self.budget)
-            
+
             algorithm.minimize(function)
             function.reset()
             
@@ -76,17 +76,17 @@ class Training:
             with Path(ioh_logger.output_directory + f"/IOHprofiler_{const.PROB_NAMES[problem - 1]}.json").open() as metadata_file:
                 metadata = json.load(metadata_file)
                 loss = 0
+                # Loop over runs and return average for multidimensional configuration
                 for index,run in enumerate(metadata['scenarios'][0]['runs']):
                     loss += run['best']['y']
                     if settings.store_problem_results:
                         results.append([problem, instance, dimension, self.budget, run['best']['y']])
                 loss = loss / len(metadata['scenarios'][0]['runs'])
-                #In case the target function returns inf or nothing at all
-                # What if loss is actually 0?
-                if loss == 0:
-                    total_loss += 20
-                else:
+                # Can't take log_10 of 0, so we cap at 10**(-10)
+                if loss > 10**(-10):
                     total_loss += math.log10(loss)
+                else:
+                    total_loss += (-10)
 
         if settings.store_problem_results:
             os.makedirs(os.path.dirname(settings.problem_result_dir), exist_ok=True)
