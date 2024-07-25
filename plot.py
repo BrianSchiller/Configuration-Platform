@@ -36,7 +36,7 @@ def plot_config_difference(config_path: Path, default_config, model_name: str, o
         if column in model_cat_att:
             dim["values"] = df[column].cat.codes
             dim["ticktext"] = df[column].unique()
-            dim["tickvals"] = list(range(len( dim["ticktext"])))
+            dim["tickvals"] = list(range(len(dim["ticktext"])))
         else:
             dim["values"] = df[column]
         dimensions.append(dim)
@@ -59,6 +59,84 @@ def plot_config_difference(config_path: Path, default_config, model_name: str, o
     pio.write_image(fig, output_path)
     print(f"Overview over config difference of {model_name}: {output_path}")
     print()
+
+
+def plot_configs(directory: Path):
+    configs = {}
+    # Construct config dict by adding one dict per model
+    # Also add default model
+    for sub_dir in directory.iterdir():
+        if sub_dir.is_dir():
+            for model in sub_dir.iterdir():
+                if model.is_dir():
+                    configs[model.name] = {}
+                    with open(f"default/{model.name}.txt", 'r') as file:
+                        config_string = file.read()
+                    config_dict = eval(config_string)
+                    config_dict["budget"] = 0
+                    config_dict["dimension"] = 0
+                    configs[model.name]["default"] = config_dict
+                    
+            break
+    # Read configs for each dim x budget combination
+    for sub_dir in directory.iterdir():
+        if sub_dir.is_dir():
+            for model in sub_dir.iterdir():
+                if model.is_dir():
+                    with open(model / f"{model.name}_{sub_dir.name.replace('__', '_')}.txt", 'r') as file:
+                        config_string = file.read()
+                    config_dict = eval(config_string)
+                    # Add dim and budget
+                    parts = sub_dir.name.split('__')
+                    config_dict["budget"] = parts[0][2:]
+                    config_dict["dimension"] = parts[1][2:]
+                    configs[model.name][sub_dir.name] = config_dict
+
+    for model in configs:
+        df_unsorted = pd.DataFrame([config for config in configs[model].values()])
+        df = df_unsorted.sort_values(by=['dimension', 'budget']).reset_index(drop=True)
+        model_dim = const.MODEL_DIM[model]
+        model_cat_att = const.MODEL_CAT_ATT[model]
+
+        for column in model_cat_att:
+            categories = df[column].unique()
+            df[column] = pd.Categorical(df[column], categories=categories)
+        
+        dimensions = []
+        for column in df.columns:
+            dim = model_dim[column]
+            if column in model_cat_att:
+                dim["values"] = df[column].cat.codes
+                dim["ticktext"] = df[column].unique()
+                dim["tickvals"] = list(range(len( dim["ticktext"])))
+            else:
+                dim["values"] = df[column]
+            dimensions.append(dim)
+
+        ticktext = []
+        for index, row in df.iterrows():
+            ticktext.append(f"D: {row['dimension']}, B: {row['budget']}")
+
+         # Create Plotly Parcoords plot
+        fig = go.Figure(data=go.Parcoords(line=dict(color=df.index,
+                                                colorscale='Turbo',
+                                                colorbar=dict(title='Configurations', tickvals=df.index, ticktext=ticktext),
+                                                showscale=True,
+                                                cmin=0,
+                                                cmax=len(df)-1),
+                                        dimensions=dimensions))
+
+        fig.update_layout(title='Parallel Coordinates Plot',
+                        plot_bgcolor='white',
+                        paper_bgcolor='white',
+                        width=1000,
+                        height=600)
+        
+        output = Path("plots") / directory.name
+        os.makedirs(output, exist_ok=True)
+        pio.write_image(fig, f"{output}/{model}.pdf")
+        print(f"Overview over configurations of {model}: {output}/{model}.pdf")
+        print()
 
 
 def plot_trajectory(intensifier: intensifier, runhistory: runhistory, unique_directory: Path, model_name: str):
@@ -118,9 +196,5 @@ def dict_to_simplenamespace(d):
         return d
 
 if __name__ == "__main__":
-    config = Path("Output/MetaModelOnePlusOne-Test-20240703_11-01-41/B_200__D_5/MetaModelOnePlusOne/MetaModelOnePlusOne_B_200_D_5.txt")
-    model = MetaModelOnePlusOne(None)
-    default_config = model.configspace.get_default_configuration()
-    output = Path("Output/MetaModelOnePlusOne-Test-20240703_11-01-41/B_200__D_5/MetaModelOnePlusOne")
-
-    plot_config_difference(config, default_config, "MetaModelOnePlusOne", output)
+    dir = Path("Output/_Final-D1015-B235")
+    plot_configs(dir)

@@ -33,6 +33,8 @@ MODEL_CAT_ATT = {
 
 MODEL_DIM = {
     "MetaModelOnePlusOne": {
+        "budget": dict(range=[0, 1500], label='budget'),
+        "dimension": dict(range=[0, 15], label='dimension'),
         "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
         "algorithm": dict(label='algorithm'),
         "noise_handling": dict(label='noise_handling'),
@@ -44,11 +46,15 @@ MODEL_DIM = {
         "smoother": dict(range=[0, 1], label='smoother', tickvals=[0, 1], ticktext=["False", "True"]),
     },
     "MetaModelFmin2": {
+        "budget": dict(range=[0, 1500], label='budget'),
+        "dimension": dict(range=[0, 15], label='dimension'),
         "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
         "algorithm": dict(label='algorithm'),
         "random_restart": dict(range=[0, 1], label='random_restart', tickvals=[0, 1], ticktext=["False", "True"]),
     },
     "MetaModel": {
+        "budget": dict(range=[0, 1500], label='budget'),
+        "dimension": dict(range=[0, 15], label='dimension'),
         "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
         "algorithm": dict(label='algorithm'),
         "scale": dict(range=[0.1, 10], label='scale'),
@@ -61,6 +67,8 @@ MODEL_DIM = {
         "random_init": dict(range=[0, 1], label='random_init', tickvals=[0, 1], ticktext=["False", "True"]),
     },
     "CMA": {
+        "budget": dict(range=[0, 1500], label='budget'),
+        "dimension": dict(range=[0, 15], label='dimension'),
         "scale": dict(range=[0.1, 10], label='scale'),
         "elitist": dict(range=[0, 1], label='elitist', tickvals=[0, 1], ticktext=["False", "True"]),
         "popsize": dict(range=[2,50], label='popsize'),
@@ -71,6 +79,8 @@ MODEL_DIM = {
         "random_init": dict(range=[0, 1], label='random_init', tickvals=[0, 1], ticktext=["False", "True"]),
     },
     "ChainMetaModelPowell": {
+        "budget": dict(range=[0, 1500], label='budget'),
+        "dimension": dict(range=[0, 15], label='dimension'),
         "random_restart": dict(range=[0, 1], label='random_restart', tickvals=[0, 1], ticktext=["False", "True"]),
         "frequency_ratio": dict(range=[0, 1], label='frequency_ratio'),
         "algorithm": dict(label='algorithm'),

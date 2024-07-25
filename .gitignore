@@ -6,3 +6,5 @@ error.txt
 normal.txt
 .vscode
 venv.sh
+default
+plots

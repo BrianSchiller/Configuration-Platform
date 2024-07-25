@@ -52,8 +52,8 @@ def create_job_script(model, budget, dimensions, specific_directory, slurm_outpu
 #SBATCH --job-name={model}_B{budget}_D{'_'.join(map(str, dimensions))}
 #SBATCH --output={slurm_output}/{model}.out
 #SBATCH --error={slurm_output}/{model}.err
-#SBATCH --time=72:00:00
-#SBATCH --partition=Kathleen
+#SBATCH --time={settings.time}
+#SBATCH --partition={settings.partition}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=3000M
