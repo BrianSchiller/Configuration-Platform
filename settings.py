@@ -1,25 +1,28 @@
-# Settings
+metaModelOnePlusOne = "MetaModelOnePlusOne"
+chainMetaModelPowell = "ChainMetaModelPowell"
+cma = "CMA"
+cobyla = "Cobyla"
+metaModel = "MetaModel"
+metaModelFmin2 = "MetaModelFmin2"
+models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
 
-problems = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
-# problems = [1,2,3,4]
-# dimension_sets = [[2], [3], [5]]
-dimension_sets = [[2], [5]]
+partition = "Test"
+time = "1:00:00"
+
+# Settings
+problems = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+dimension_sets = [[2, 3, 5]]
 instances = [1,2,3,4,5,6,7,8]
-budgets = [200,1000]
-# budgets = [200, 100]
+budgets = [200, 300, 500]
 repetitions = 1
-trials = 300
+trials = 13333
 
 store_problem_results = False
 problem_result_dir = None
 
-#Validation
-val_size = 5
-val_iterations = 3
-
 #Testing (test_size <= val_size)
-test_size = 3
-test_iterations = 10
+test_size = 1
+test_iterations = 3
 
 #Logging
 log_folder = "/storage/work/schiller/logs/configs"

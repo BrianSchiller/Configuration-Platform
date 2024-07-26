@@ -12,31 +12,34 @@ class Tester():
     ) -> None:
         self.smac = smac
 
-    def test(self, top_configs, test_configs, default_config, output, iterations = None):
+    def test(self, top_config, test_configs, default_config, output, iterations = None):
         if iterations is None:
             self.iterations = settings.test_iterations
         
         settings.store_problem_results = True
         result_output = output / "test_results"
+
         self.top_results = result_output / "top_results"
-        top_values = self.get_values(top_configs, self.top_results)
-        print("Finished Testing of found configurations")
+        top_values = self.get_values([top_config], self.top_results)
+        print("Finished Testing of incumbent")
+
         self.sample_results = result_output / "sample_results"
-        test_values = self.get_values(test_configs, self.sample_results)
+        sample_values = self.get_values(test_configs, self.sample_results)
         print("Finished Testing of sampled configurations")
+
         self.default_results = result_output / "default_results"
         default_values = self.get_values([default_config], self.default_results)
         print("Finished Testing of default configuration")
 
         output = output / "plots"
-        self.plot_performance_history(top_values, test_values, default_values, output)
+        self.plot_performance_history(top_values, sample_values, default_values, output)
         self.plot_problem_performance(output)
 
         return
     
     def get_values(self, configs, out_dir):
         values = {}
-        # validate each config -iterations- times and add mean to the values
+        # validate each config -iterations- times
         for index, config in enumerate(configs):
             values[index] = []
             for _index in range(self.iterations):

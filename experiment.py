@@ -47,23 +47,23 @@ def write_scenario_file(output_dir):
     with open(f"{output_dir}/scenario.json", "w") as json_file:
         json.dump(data, json_file, indent=4)
 
-def create_job_script(model, budget, dimensions, specific_directory, slurm_output):
+def create_job_script(model, budget, dimensions, specific_directory, slurm_output, trials):
     script_content = f"""#!/bin/bash
 #SBATCH --job-name={model}_B{budget}_D{'_'.join(map(str, dimensions))}
 #SBATCH --output={slurm_output}/{model}.out
 #SBATCH --error={slurm_output}/{model}.err
-#SBATCH --time=96:00:00
-#SBATCH --partition=Kathleen
+#SBATCH --time={settings.time}
+#SBATCH --partition={settings.partition}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=3000M
 
 # Activate virtual environment
 module load Python/3.11
-source /storage/work/schiller/venvs/config/bin/activate
+source /storage/work/schiller/venvs/Configuration/bin/activate
 
 # Run the experiment
-python scenario.py --model {model} --directory {specific_directory} --dimension {' '.join(map(str, dimensions))} --budget {budget}
+python scenario.py --model {model} --directory {specific_directory} --dimension {' '.join(map(str, dimensions))} --budget {budget} --trials {trials}
 """
     return script_content
 
@@ -86,21 +86,14 @@ if __name__ == "__main__":
             specific_directory = unique_directory / f"B_{budget}__D_{'_'.join(map(str, dimensions))}"
 
             # Models 
-            metaModelOnePlusOne = "MetaModelOnePlusOne"
-            chainMetaModelPowell = "ChainMetaModelPowell"
-            cma = "CMA"
-            cobyla = "Cobyla"
-            metaModel = "MetaModel"
-            metaModelFmin2 = "MetaModelFmin2"
-            models = [cma, metaModelOnePlusOne, chainMetaModelPowell, metaModel, metaModelFmin2]
-             
+            models = settings.models
             # For each model create the scenario, run, validate, test and plot
             for model in models:
                 if args.slurm:
                     slurm_output = specific_directory / model
                     os.makedirs(slurm_output, exist_ok=True)
 
-                    job_script = create_job_script(model, budget, dimensions, specific_directory, slurm_output)
+                    job_script = create_job_script(model, budget, dimensions, specific_directory, slurm_output, settings.trials)
                     job_script_path = slurm_output / f"{model}_B{budget}_D{'_'.join(map(str, dimensions))}.sh"
                     with open(job_script_path, 'w') as file:
                         file.write(job_script)
@@ -109,5 +102,5 @@ if __name__ == "__main__":
                     os.system(f"sbatch {job_script_path}")
 
                 else:
-                    run_experiment(model, budget, dimensions, specific_directory)
+                    run_experiment(model, budget, dimensions, specific_directory, settings.trials)
 
