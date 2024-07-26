@@ -26,7 +26,7 @@ from training import Training
 from models import MetaModelOnePlusOne, ChainMetaModelPowell, CMA, Cobyla, MetaModel, MetaModelFmin2
 import plot
     
-def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_directory: Path):
+def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_directory: Path, trials: int):
     
     trainings_function = Training(Path(*unique_directory.parts[1:]), dimensions=dimensions, budget=budget)
     
@@ -50,7 +50,7 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
 
     scenario = Scenario(model.configspace, 
                         deterministic=True, 
-                        n_trials=settings.trials, 
+                        n_trials=trials, 
                         output_directory=model_output, 
                         instances=instances,
                         instance_features=index_dict)
@@ -94,12 +94,14 @@ if __name__ == "__main__":
     parser.add_argument('--dimension', type=int, nargs='+', required=True, help='List of dimensions')
     parser.add_argument('--budget', type=int, help='Budget for the optimiser', required=False)
     parser.add_argument('--directory', type=Path, help='Path to the result directory', required=False)
+    parser.add_argument('--trials', type=int, help='Number of trials to run', required=False)
     args = parser.parse_args()
 
     model = args.model_name
     dimensions = args.dimension
     budget = args.budget
     unique_directory = args.directory
+    trials = args.trials
 
-    run_experiment(model, budget, dimensions, unique_directory)
+    run_experiment(model, budget, dimensions, unique_directory, trials)
 
