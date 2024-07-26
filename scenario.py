@@ -67,6 +67,11 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
     incumbent = smac.optimize()
     print(f"Finished configuration of {model.name}")
 
+    # Output best_config
+    config_output = model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt"
+    with open(config_output, 'w') as file:
+        print(incumbent.get_dictionary(), file=file)
+
     # Plot the trajectory of the incumbents
     plot.plot_trajectory(smac.intensifier, smac.runhistory, unique_directory, model.name)
     
@@ -78,11 +83,6 @@ def run_experiment(model_name: str, budget: int, dimensions: list[int], unique_d
         default_config["popsize"] = 4 + int(3 * np.log(dimensions[-1]))
     Tester(smac).test(incumbent, test_configs, default_config, model_output)
     print(f"Finished Testing! Results can be found in {model_output}")
-    
-    # Output best_config
-    config_output = model_output / f"{model.name}_B_{budget}_D_{'_'.join(map(str, dimensions))}.txt"
-    with open(config_output, 'w') as file:
-        print(incumbent.get_dictionary(), file=file)
 
     plot.plot_config_difference(config_output, default_config, model.name, model_output / "plots")
 
