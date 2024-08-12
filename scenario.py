@@ -3,23 +3,16 @@
 import smac
 from smac import AlgorithmConfigurationFacade as ACFacade
 from smac import Scenario
-from smac import Callback
-from smac.runhistory import TrialInfo, TrialValue
-from smac.main.smbo import SMBO
-from nevergrad.optimization.base import ConfiguredOptimizer
 
 import warnings
 # Ignore all DeprecationWarnings from the smac package
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-import matplotlib.pyplot as plt
 import argparse
-import datetime
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from validation import Validator
 from test import Tester
 import settings
 from training import Training

@@ -34,10 +34,6 @@ def write_scenario_file(output_dir):
             "Budget": settings.budgets,
             "Repetitions": settings.repetitions,
         },
-        "Validation": {
-            "Candidates": settings.val_size,
-            "Iterations": settings.val_iterations,
-        },
         "Testing": {
             "Candidates": settings.test_size,
             "Iterations": settings.test_iterations,
