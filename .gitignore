@@ -8,3 +8,6 @@ normal.txt
 venv.sh
 default
 plots
+*.err
+*.out
+*.json

@@ -54,9 +54,6 @@ def main(source_dirs, destination_dir):
 
 if __name__ == "__main__":
     source_directories = [
-        "Output/Final_D235_B235",
-        "Output/Final_D235_B1015",
-        "Output/Final_D1015_B235",
         "Output/Final_D1015_B1510"
     ]
     destination_directory = "Output/Final"

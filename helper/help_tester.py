@@ -57,35 +57,46 @@ def run_test(dimensions, budget, model_name, directory, incumbent):
 
 if __name__ == "__main__":
     configs = [
-        {
-            "model": "MetaModel",
-            "budget": 999,
-            "dimension": 15,
-            "incumbent": """{
-                "algorithm": "quad",
-                "diagonal": True,
-                "elitist": True,
-                "fcmaes": False,
-                "frequency_ratio": 0.08940571629592835,
-                "high_speed": False,
-                "popsize": 9,
-                "popsize_factor": 9.20420081118838,
-                "random_init": False,
-                "scale": 9.237330289172416
-            }""",
-            "path": "Output/Final_D1015_B1510/B_999__D_15"
-        },
-        {
-            "model": "MetaModelFmin2",
-            "budget": 999,
-            "dimension": 15,
-            "incumbent": """{
-                "algorithm": "quad",
-                "frequency_ratio": 4.2172047025565396e-05,
-                "random_restart": False
-            }""",
-            "path": "Output/Final_D1015_B1510/B_999__D_15"
-        },
+        # {
+        #     "model": "MetaModel",
+        #     "budget": 999,
+        #     "dimension": 15,
+        #     "incumbent": """{
+        #         "algorithm": "quad",
+        #         "diagonal": True,
+        #         "elitist": True,
+        #         "fcmaes": False,
+        #         "frequency_ratio": 0.08940571629592835,
+        #         "high_speed": False,
+        #         "popsize": 9,
+        #         "popsize_factor": 9.20420081118838,
+        #         "random_init": False,
+        #         "scale": 9.237330289172416
+        #     }""",
+        #     "path": "Output/Final_D1015_B1510/B_999__D_15"
+        # },
+        # {
+        #     "model": "MetaModelFmin2",
+        #     "budget": 500,
+        #     "dimension": 15,
+        #     "incumbent": """{
+        #         "algorithm": "quad",
+        #         "frequency_ratio": 0.628998521685309,
+        #         "random_restart": True
+        #     }""",
+        #     "path": "Output/_Multi_Dim_2351015-20240812_10-25-00/B_500__D_2_3_5_10_15"
+        # },
+        # {
+        #     "model": "MetaModelFmin2",
+        #     "budget": 999,
+        #     "dimension": 15,
+        #     "incumbent": """{
+        #         "algorithm": "quad",
+        #         "frequency_ratio": 4.2172047025565396e-05,
+        #         "random_restart": False
+        #     }""",
+        #     "path": "Output/Final_D1015_B1510/B_999__D_15"
+        # },
         {
             "model": "MetaModel",
             "budget": 1500,
@@ -109,6 +120,7 @@ if __name__ == "__main__":
     for config in configs:
         incumbent = eval(config["incumbent"])
         run_test([config["dimension"]], config["budget"], config["model"], Path(config["path"]), incumbent)
+        # run_test([2,3,5,10,15], config["budget"], config["model"], Path(config["path"]), incumbent)
 
 
     

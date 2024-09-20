@@ -4,6 +4,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
+import json
+import numpy as np
 
 from scipy.stats import ttest_rel
 
@@ -41,13 +43,14 @@ def analyse_results(path: Path):
     # Concatenate all dataframes into one
     combined_df = pd.concat([top_df, default_df], ignore_index=True)
 
-    stats = combined_df.groupby('configuration')['loss'].agg(['mean', 'median', 'std'])
     # print(stats)
 
-    top_losses = combined_df[combined_df['configuration'] == 'Top']['loss']
-    default_losses = combined_df[combined_df['configuration'] == 'Default']['loss']
+    combined_df['log_loss'] = np.where(combined_df['loss'] < 10**(-10), -10, np.log10(combined_df['loss']))
+    top_losses = combined_df[combined_df['configuration'] == 'Top']['log_loss']
+    default_losses = combined_df[combined_df['configuration'] == 'Default']['log_loss']
 
     # Perform paired t-test
+    stats = combined_df.groupby('configuration')['log_loss'].agg(['mean', 'median', 'std'])
     t_stat, p_value = ttest_rel(top_losses, default_losses)
     # print(f"Paired t-test: t-statistic = {t_stat}, p-value = {p_value}")
 
@@ -87,6 +90,53 @@ def evaluate_results(path, model: str = None):
     print(f"In {number_improvment} cases the found configuration achieved better results, {number_improvement_sig} time these results are significant")
 
 
+def measure_time(paths: list[Path]):
+    results = {}
+    for path in paths:
+        for root, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                if filename == "optimization.json":
+                    full_path = Path(os.path.join(root, filename))
+                    model = full_path.parent.parent.parent.name
+                    dim_bud = full_path.parent.parent.parent.parent.name
+                    bud = dim_bud[2:5]
+                    dim = dim_bud[9:]
+                    # _, bud, _, _, dim = dim_bud.split("_")
+                    if not model in results:
+                        results[model] = {}
+                    if not dim in results[model]:
+                        results[model][dim] = {}
+                    with open(full_path, 'r') as file:
+                        data = json.load(file)
+                        total_time = data["used_walltime"]
+                        function_time = data["used_target_function_walltime"]
+                    results[model][dim][bud] = {"time": total_time, "function_time": function_time}
+    
+    for model in results.keys():
+        model_results = results[model]
+        total_time = 0
+        total_func_time = 0
+        for dim, bud_dict in model_results.items():
+            dim_time = 0
+            dim_func_time = 0
+            for bud, time_dict in bud_dict.items():
+                dim_time += time_dict["time"]
+                dim_func_time += time_dict["function_time"]
+            results[model][dim]["time"] = dim_time
+            results[model][dim]["function_time"] = dim_func_time
+            total_time += dim_time
+            total_func_time += dim_func_time
+        results[model]["time"] = total_time
+        results[model]["function_time"] = total_func_time
+
+    output_dir = Path("Times/Multi_2351015")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "times.json"
+
+    with open(output_file, 'w') as file:
+        json.dump(results, file, indent=4)
+
+          
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Analyse results.')
@@ -94,12 +144,15 @@ if __name__ == "__main__":
     parser.add_argument('--eval', type=bool, help='Whether to evaluate the results', required=False, default=False)
     args = parser.parse_args()
 
-    path = "Output/Final"
+    path = "Output/Multi_Dim_2351015"
+    paths = ["Output/Final_D235_B235", "Output/Final_D235_B1015", "Output/Final_D1015_B235", "Output/Final_D1015_B1510"]
+
+    # measure_time([path])
 
     if args.analyse:
         results = []
         for entry in os.listdir(path):
-            if os.path.isdir(os.path.join(path, entry)):
+            if os.path.isdir(os.path.join(path, entry)) and entry.startswith("B_"):
                 budget_dimension_folder = os.path.join(path, entry)
                 for entry in os.listdir(budget_dimension_folder):
                     if os.path.isdir(os.path.join(budget_dimension_folder, entry)):

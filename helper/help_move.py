@@ -2,12 +2,12 @@ import os
 import shutil
 
 # Define the source and destination directories
-old_root_dir = 'Output/_Multi-Dim-235-20240726_16-12-41'
+old_root_dir = 'Output/_Multi_Dim_2351015-20240812_10-25-00'
 new_root_dir = '../AS4BBO/configurations'
 
 # List of x and y values based on your description
 x_values = [200, 300, 500]
-y_values = [[10, 15]]
+y_values = [[2, 3, 5, 10, 15]]
 
 # Ensure the new directory structure exists
 for x in x_values:

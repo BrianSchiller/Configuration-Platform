@@ -31,6 +31,14 @@ MODEL_CAT_ATT = {
     "ChainMetaModelPowell": ["algorithm"]
 }
 
+MODEL_BIN_ATT = {
+    "MetaModelOnePlusOne": ["crossover", "use_pareto", "smoother", "sparse"],
+    "MetaModelFmin2": ["random_restart"],
+    "MetaModel": ["diagonal", "elitist", "fcmaes", "high_speed", "random_init"],
+    "CMA": ["diagonal", "elitist", "fcmaes", "high_speed"],
+    "ChainMetaModelPowell": ["diagonal", "elitist", "fcmaes", "high_speed", "random_init", "random_restart"]
+}
+
 MODEL_DIM = {
     "MetaModelOnePlusOne": {
         "budget": dict(range=[0, 1500], label='budget'),
